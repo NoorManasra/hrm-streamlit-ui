@@ -1,18 +1,15 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query
 from pymongo import MongoClient
 from datetime import datetime
 from typing import Optional
 
-# Mongo connection
-client = MongoClient("mongodb+srv://admin:nqdoEbgeEWkp9dFI@hrm-cluster.3yb5td1.mongodb.net/?retryWrites=true&w=majority&appName=HRM-Cluster")
+client = MongoClient("mongodb+srv://admin:...@hrm-cluster.mongodb.net/?retryWrites=true&w=majority&appName=HRM-Cluster")
 db = client.human_rights_db
 cases_collection = db.cases
 
-# Router
-analytics_router = APIRouter()
+app = FastAPI()
 
-# GET /analytics/violations
-@analytics_router.get("/violations")
+@app.get("/analytics/violations")
 async def get_violations_by_type():
     try:
         pipeline = [
@@ -29,9 +26,7 @@ async def get_violations_by_type():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# GET /analytics/geodata
-@analytics_router.get("/geodata")
+@app.get("/analytics/geodata")
 async def get_geodata():
     try:
         pipeline = [
@@ -55,9 +50,7 @@ async def get_geodata():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-# GET /analytics/timeline
-@analytics_router.get("/timeline")
+@app.get("/analytics/timeline")
 async def get_timeline(
     start_date: Optional[str] = Query(None, description="Start date in YYYY-MM-DD"),
     end_date: Optional[str] = Query(None, description="End date in YYYY-MM-DD")
