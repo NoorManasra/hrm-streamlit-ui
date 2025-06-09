@@ -3,28 +3,28 @@ import requests
 
 st.title("📂 Human Rights Case Management")
 
-# جلب البيانات من FastAPI
-st.header("🔍 عرض الحالات")
+# Fetch cases from FastAPI
+st.header("🔍 View Cases")
 response = requests.get("https://hrm-streamlit-ui.onrender.com/cases/")
 if response.status_code == 200:
     cases = response.json()
     for case in cases:
         with st.expander(case["title"]):
-            st.write("📅 تاريخ الحدوث:", case["date_occurred"])
-            st.write("📍 الموقع:", case["location"]["country"], "-", case["location"].get("region", ""))
-            st.write("🚨 نوع الانتهاك:", ", ".join(case["violation_types"]))
-            st.write("📝 الوصف:", case["description"])
+            st.write("📅 Date of Incident:", case["date_occurred"])
+            st.write("📍 Location:", case["location"]["country"], "-", case["location"].get("region", ""))
+            st.write("🚨 Violation Type(s):", ", ".join(case["violation_types"]))
+            st.write("📝 Description:", case["description"])
 else:
-    st.error("فشل في جلب البيانات")
+    st.error("Failed to fetch cases from the server.")
 
-# إضافة حالة جديدة (مثال مبسط)
-st.header("➕ إضافة حالة جديدة")
-if st.checkbox("عرض النموذج"):
-    title = st.text_input("العنوان")
-    description = st.text_area("الوصف")
-    if st.button("إرسال"):
+# Add a new case (simple example)
+st.header("➕ Add a New Case")
+if st.checkbox("Show Form"):
+    title = st.text_input("Title")
+    description = st.text_area("Description")
+    if st.button("Submit"):
         payload = {
-            "case_id": "ID-001",  # مؤقتًا، عدله لاحقًا
+            "case_id": "ID-001",  # Temporary, replace with actual logic later
             "title": title,
             "description": description,
             "violation_types": ["arbitrary detention"],
@@ -39,7 +39,6 @@ if st.checkbox("عرض النموذج"):
         }
         res = requests.post("https://your-fastapi-app.onrender.com/cases/", json=payload)
         if res.status_code == 200:
-            st.success("تمت إضافة الحالة بنجاح")
+            st.success("Case added successfully.")
         else:
-            st.error("فشل في إضافة الحالة")
-
+            st.error("Failed to add the case.")
