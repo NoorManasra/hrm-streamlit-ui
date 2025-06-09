@@ -4,3 +4,7 @@ fastapi
 uvicorn
 pymongo
 python-multipart
+pandas
+plotly
+fpdf
+xlsxwriter
