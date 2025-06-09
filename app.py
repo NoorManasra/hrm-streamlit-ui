@@ -45,12 +45,59 @@ with tab3:
         description = st.text_area("Description")
         case_id = st.text_input("Case ID")
         status = st.selectbox("Status", ["open", "closed"])
+        priority = st.selectbox("Priority", ["low", "medium", "high", "urgent"], index=1)
+        
+        # Location
         country = st.text_input("Country")
         region = st.text_input("Region")
         lat = st.number_input("Latitude", value=31.9)
         lon = st.number_input("Longitude", value=35.2)
+
+        # Dates
         date_occurred = st.date_input("Date Occurred", value=date.today())
         date_reported = st.date_input("Date Reported", value=date.today())
+
+        # Violation types
+        violation_types = st.multiselect(
+            "Violation Types",
+            ["arbitrary detention", "torture", "forced disappearance", "extrajudicial killing"]
+        )
+
+        # Victims
+        victims_input = st.text_area("Victim IDs (comma-separated)")
+        victims = [v.strip() for v in victims_input.split(",")] if victims_input else []
+
+        # Perpetrators
+        st.markdown("### Perpetrators")
+        perp_names = st.text_area("Names (comma-separated)")
+        perp_types = st.text_area("Types (comma-separated, match order)")
+        perpetrators = []
+        if perp_names and perp_types:
+            names = [n.strip() for n in perp_names.split(",")]
+            types = [t.strip() for t in perp_types.split(",")]
+            perpetrators = [{"name": n, "type": t} for n, t in zip(names, types)]
+
+        # Evidence
+        st.markdown("### Evidence")
+        ev_types = st.text_area("Evidence Types (comma-separated)")
+        ev_urls = st.text_area("Evidence URLs (comma-separated)")
+        ev_descs = st.text_area("Evidence Descriptions (optional, comma-separated)")
+        ev_dates = st.text_area("Evidence Capture Dates (YYYY-MM-DD, optional, comma-separated)")
+        evidence = []
+        if ev_types and ev_urls:
+            types = [t.strip() for t in ev_types.split(",")]
+            urls = [u.strip() for u in ev_urls.split(",")]
+            descs = [d.strip() for d in ev_descs.split(",")] if ev_descs else ["" for _ in types]
+            dates = [d.strip() for d in ev_dates.split(",")] if ev_dates else [None for _ in types]
+            for i in range(len(types)):
+                ev = {
+                    "type": types[i],
+                    "url": urls[i],
+                    "description": descs[i] if i < len(descs) else "",
+                    "date_captured": dates[i] if i < len(dates) and dates[i] else None
+                }
+                evidence.append(ev)
+
         submitted = st.form_submit_button("Submit")
 
         if submitted:
@@ -58,8 +105,9 @@ with tab3:
                 "case_id": case_id,
                 "title": title,
                 "description": description,
-                "violation_types": ["arbitrary detention"],
+                "violation_types": violation_types,
                 "status": status,
+                "priority": priority,
                 "location": {
                     "country": country,
                     "region": region,
@@ -69,13 +117,18 @@ with tab3:
                     }
                 },
                 "date_occurred": str(date_occurred),
-                "date_reported": str(date_reported)
+                "date_reported": str(date_reported),
+                "victims": victims,
+                "perpetrators": perpetrators,
+                "evidence": evidence
             }
+
             res = requests.post(f"{API_URL}/cases/", json=payload)
             if res.status_code == 200:
                 st.success("✅ Case added successfully")
             else:
-                st.error("❌ Failed to add case")
+                st.error(f"❌ Failed to add case\n{res.text}")
+
 
 with tab4:
     st.subheader("✏️ Edit Case")
