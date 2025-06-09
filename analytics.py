@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from datetime import datetime
 from typing import Optional
 
-client = MongoClient("mongodb+srv://admin:...@hrm-cluster.mongodb.net/?retryWrites=true&w=majority&appName=HRM-Cluster")
+client = MongoClient("mongodb+srv://admin:nqdoEbgeEWkp9dFI@hrm-cluster.3yb5td1.mongodb.net/?retryWrites=true&w=majority&appName=HRM-Cluster")
 db = client.human_rights_db
 cases_collection = db.cases
 
