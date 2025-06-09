@@ -22,7 +22,7 @@ with col2:
 # --- تحميل بيانات الانتهاكات ---
 @st.cache_data(ttl=300)
 def fetch_violations():
-    r = requests.get(f"{API_BASE}/violations")
+    r = requests.get(f"{API_BASE}/analytics/violations")
     r.raise_for_status()
     return r.json()
 
@@ -34,14 +34,14 @@ def fetch_timeline(start=None, end=None):
         params["start_date"] = start.strftime("%Y-%m-%d")
     if end:
         params["end_date"] = end.strftime("%Y-%m-%d")
-    r = requests.get(f"{API_BASE}/timeline", params=params)
+    r = requests.get(f"{API_BASE}/analytics/timeline", params=params)
     r.raise_for_status()
     return r.json()
 
 # --- تحميل بيانات الجغرافيا ---
 @st.cache_data(ttl=300)
 def fetch_geodata():
-    r = requests.get(f"{API_BASE}/geodata")
+    r = requests.get(f"{API_BASE}/analytics/geodata")
     r.raise_for_status()
     return r.json()
 
