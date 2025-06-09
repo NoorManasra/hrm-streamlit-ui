@@ -6,7 +6,7 @@ from io import BytesIO
 from datetime import datetime
 from fpdf import FPDF
 
-API_BASE = "http://localhost:8000/analytics"  # غيّر للعنوان الصحيح للAPI عندك
+API_BASE = "https://hrm-streamlit-ui-1.onrender.com"  # غيّر للعنوان الصحيح للAPI عندك
 
 st.set_page_config(page_title="Human Rights Violations Dashboard", layout="wide")
 
