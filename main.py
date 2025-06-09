@@ -11,6 +11,9 @@ from pydantic import BaseModel # type: ignore
 from fastapi import Query # type: ignore
 from fastapi import UploadFile, File # type: ignore
 
+from analytics_api import analytics_router
+
+app.include_router(analytics_router, prefix="/analytics")
 
 
 app = FastAPI()
