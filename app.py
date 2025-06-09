@@ -37,7 +37,7 @@ if st.checkbox("Show Form"):
             "date_occurred": "2024-06-01",
             "date_reported": "2024-06-02"
         }
-        res = requests.post("https://your-fastapi-app.onrender.com/cases/", json=payload)
+        res = requests.post("https://hrm-streamlit-ui.onrender.com/cases/", json=payload)
         if res.status_code == 200:
             st.success("Case added successfully.")
         else:
