@@ -30,13 +30,15 @@ def fetch_violations():
 @st.cache_data(ttl=300)
 def fetch_timeline(start=None, end=None):
     params = {}
-    if start:
+    if start is not None:
         params["start_date"] = start.strftime("%Y-%m-%d")
-    if end:
+    if end is not None:
         params["end_date"] = end.strftime("%Y-%m-%d")
-    r = requests.get(f"{API_BASE}/analytics/timeline", params=params)
+
+    r = requests.get(f"{API_BASE}/timeline", params=params)
     r.raise_for_status()
     return r.json()
+
 
 # --- تحميل بيانات الجغرافيا ---
 @st.cache_data(ttl=300)
