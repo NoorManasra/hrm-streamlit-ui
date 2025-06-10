@@ -131,10 +131,12 @@ def create_pdf_report(violations_df, timeline_df, geo_df) -> BytesIO:
         region = row['region'] if row['region'] else "N/A"
         pdf.cell(0, 8, f"- {row['country']} / {region}: {row['count']}", ln=True)
 
-    output = BytesIO()
-    pdf.output(output)
+    # Output as BytesIO
+    pdf_bytes = pdf.output(dest='S').encode('latin1')
+    output = BytesIO(pdf_bytes)
     output.seek(0)
     return output
+
 
 st.sidebar.header("Export Data")
 
