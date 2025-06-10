@@ -22,9 +22,45 @@ with tab1:
     res = requests.get(f"{API_URL}/cases/")
     if res.status_code == 200:
         cases = res.json()
-        for case in cases:
-            with st.expander(case["title"]):
-                st.write(case)
+        if cases:
+            for case in cases:
+                with st.expander(f"📌 {case['title']} (ID: {case['case_id']})"):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown(f"**Description:** {case['description']}")
+                        st.markdown(f"**Status:** {case['status']}")
+                        st.markdown(f"**Priority:** {case['priority']}")
+                        st.markdown(f"**Date Occurred:** {case['date_occurred']}")
+                        st.markdown(f"**Date Reported:** {case['date_reported']}")
+
+                    with col2:
+                        st.markdown(f"**Country:** {case['location']['country']}")
+                        st.markdown(f"**Region:** {case['location']['region']}")
+                        st.markdown(f"**Coordinates:** {case['location']['coordinates']['coordinates']}")
+                        st.markdown(f"**Violation Types:** {', '.join(case['violation_types'])}")
+                    
+                    # Optionally show victims, perpetrators, evidence
+                    st.markdown("### 👥 Victims")
+                    if case['victims']:
+                        st.write(", ".join(case['victims']))
+                    else:
+                        st.write("No victims listed.")
+
+                    st.markdown("### 🚨 Perpetrators")
+                    if case['perpetrators']:
+                        for p in case['perpetrators']:
+                            st.markdown(f"- **Name:** {p['name']} | **Type:** {p['type']}")
+                    else:
+                        st.write("No perpetrators listed.")
+
+                    st.markdown("### 📄 Evidence")
+                    if case['evidence']:
+                        for ev in case['evidence']:
+                            st.markdown(f"- **Type:** {ev['type']} | [Link]({ev['url']}) | **Date Captured:** {ev.get('date_captured', 'N/A')}")
+                    else:
+                        st.write("No evidence listed.")
+        else:
+            st.info("No cases found.")
     else:
         st.error("❌ Failed to load cases")
 
