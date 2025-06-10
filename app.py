@@ -250,15 +250,8 @@ with tab7:
         res = requests.get(f"{API_URL}/cases/{case_id}/status-history")
         if res.status_code == 200:
             history = res.json()
-            if history:
-                for record in history:
-                    timestamp = record.get("timestamp", "N/A")
-                    status = record.get("status", "N/A")
-                    changed_by = record.get("changed_by", "Unknown")
-                    
-                    st.markdown(f"**🕒 Date:** {timestamp} | **📌 Status:** {status} | **👤 Changed by:** {changed_by}")
-            else:
-                st.info("No status history found.")
+            for record in history:
+                st.write(record)
         else:
             st.error(res.json()["detail"])
 
