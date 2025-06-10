@@ -12,12 +12,18 @@ st.set_page_config(page_title="Human Rights Violations Dashboard", layout="wide"
 
 st.title("Human Rights Violations Dashboard")
 
-# --- فلترة التاريخ ---
 col1, col2 = st.columns(2)
+
 with col1:
-    start_date = datetime.combine(start_date, datetime.min.time())
+    start_date = st.date_input("Start Date", value=datetime(2023, 1, 1))
+
 with col2:
-    start_date = datetime.combine(start_date, datetime.min.time())
+    end_date = st.date_input("End Date", value=datetime(2024, 12, 31))
+
+# بعدين تحولهم ل datetime كامل (datetime.combine)
+start_date = datetime.combine(start_date, datetime.min.time())
+end_date = datetime.combine(end_date, datetime.min.time())
+
 
 # --- تحميل بيانات الانتهاكات ---
 @st.cache_data(ttl=300)
