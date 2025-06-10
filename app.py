@@ -71,9 +71,48 @@ with tab2:
     if st.button("Get Case"):
         res = requests.get(f"{API_URL}/cases/{case_id}")
         if res.status_code == 200:
-            st.json(res.json())
+            case = res.json()
+            with st.expander(f"📌 {case['title']} (ID: {case['case_id']})", expanded=True):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown(f"**Description:** {case['description']}")
+                    st.markdown(f"**Status:** {case['status']}")
+                    st.markdown(f"**Priority:** {case['priority']}")
+                    st.markdown(f"**Date Occurred:** {case['date_occurred']}")
+                    st.markdown(f"**Date Reported:** {case['date_reported']}")
+
+                with col2:
+                    st.markdown(f"**Country:** {case['location']['country']}")
+                    st.markdown(f"**Region:** {case['location']['region']}")
+                    st.markdown(f"**Coordinates:** {case['location']['coordinates']['coordinates']}")
+                    st.markdown(f"**Violation Types:** {', '.join(case['violation_types'])}")
+
+                # Victims
+                st.markdown("### 👥 Victims")
+                if case['victims']:
+                    st.write(", ".join(case['victims']))
+                else:
+                    st.write("No victims listed.")
+
+                # Perpetrators
+                st.markdown("### 🚨 Perpetrators")
+                if case['perpetrators']:
+                    for p in case['perpetrators']:
+                        st.markdown(f"- **Name:** {p['name']} | **Type:** {p['type']}")
+                else:
+                    st.write("No perpetrators listed.")
+
+                # Evidence
+                st.markdown("### 📄 Evidence")
+                if case['evidence']:
+                    for ev in case['evidence']:
+                        st.markdown(f"- **Type:** {ev['type']} | [Link]({ev['url']}) | **Date Captured:** {ev.get('date_captured', 'N/A')}")
+                else:
+                    st.write("No evidence listed.")
+
         else:
             st.error(res.json()["detail"])
+
 with tab3:
     st.subheader("➕ Add New Case")
     with st.form("add_case_form"):
