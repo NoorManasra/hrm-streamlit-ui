@@ -73,32 +73,33 @@ def fetch_geodata(start=None, end=None, violation_type=None):
     r.raise_for_status()
     return r.json()
 
-# --- جلب البيانات ---
-violations_data = fetch_violations(start_date, end_date)
-df_violations = pd.DataFrame(violations_data)
-
-# نجهز regions و violation types للفلترة
+# 1. جلب البيانات بدون فلترة (لاستعمالها في بناء خيارات الفلاتر)
 geodata = fetch_geodata(start_date, end_date)
 df_geo = pd.DataFrame(geodata)
 
+violations_data = fetch_violations(start_date, end_date)
+df_violations = pd.DataFrame(violations_data)
+
+# 2. بناء خيارات الفلاتر بناءً على البيانات الحقيقية
 regions = df_geo['region'].dropna().unique().tolist() if not df_geo.empty else []
 violation_types = df_violations['violation_type'].dropna().unique().tolist() if not df_violations.empty else []
 
-# تحديث الـ sidebar filters بناءً على البيانات الحقيقية
+# 3. عرض خيارات الفلاتر في sidebar (مع تضمين "All")
 selected_region = st.sidebar.selectbox("Region", ["All"] + regions)
 selected_violation_type = st.sidebar.selectbox("Violation Type", ["All"] + violation_types)
 
-# --- إعادة جلب البيانات بعد الفلترة ---
+# 4. جلب البيانات المفلترة بناءً على اختيار المستخدم
 violations_data = fetch_violations(start_date, end_date, selected_region)
 df_violations = pd.DataFrame(violations_data)
 
 timeline_data = fetch_timeline(start_date, end_date, selected_region, selected_violation_type)
 df_timeline = pd.DataFrame(timeline_data)
-if not df_timeline.empty:
-    df_timeline['date'] = pd.to_datetime(df_timeline['date'])
 
 geodata = fetch_geodata(start_date, end_date, selected_violation_type)
 df_geo = pd.DataFrame(geodata)
+
+# باقي عرض الرسوم البيانية وهكذا ...
+
 
 # --- Visualization ---
 st.subheader("Violations by Type")
