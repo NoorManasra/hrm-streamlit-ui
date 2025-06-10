@@ -1,4 +1,3 @@
-# === human_rights_dashboard.py ===
 import streamlit as st
 import requests
 import pandas as pd
@@ -7,34 +6,41 @@ from io import BytesIO
 from datetime import datetime
 from fpdf import FPDF
 
-API_BASE = "https://hrm-streamlit-ui-6.onrender.com"  # غير للرابط تبعك لو لازم
+API_BASE = "https://hrm-streamlit-ui-6.onrender.com"
 
 st.set_page_config(page_title="Human Rights Violations Dashboard", layout="wide")
-
 st.title("Human Rights Violations Dashboard")
 
-# --- الفلاتر ---
-col1, col2, col3 = st.columns(3)
+# --- Sidebar Filters ---
+st.sidebar.header("Filters")
 
-with col1:
-    start_date = st.date_input("Start Date", value=datetime(2023, 1, 1))
-with col2:
-    end_date = st.date_input("End Date", value=datetime(2024, 12, 31))
-with col3:
-    # مبدئياً نخليهم All ونجيبهم لاحقاً
-    selected_region = st.selectbox("Region Filter", ["All"])
-    selected_violation_type = st.selectbox("Violation Type Filter", ["All"])
+start_date = st.sidebar.date_input("Start Date", value=datetime(2023, 1, 1))
+end_date = st.sidebar.date_input("End Date", value=datetime(2024, 12, 31))
 
 start_date = datetime.combine(start_date, datetime.min.time())
 end_date = datetime.combine(end_date, datetime.min.time())
 
-# --- API Calls ---
+# Fetch initial data without region/type filter to populate filter options
+@st.cache_data(ttl=300)
+def fetch_geodata(start=None, end=None, violation_type=None):
+    params = {}
+    if start:
+        params["start_date"] = start.strftime("%Y-%m-%d")
+    if end:
+        params["end_date"] = end.strftime("%Y-%m-%d")
+    if violation_type and violation_type != "All":
+        params["violation_type"] = violation_type
+
+    r = requests.get(f"{API_BASE}/analytics/geodata", params=params)
+    r.raise_for_status()
+    return r.json()
+
 @st.cache_data(ttl=300)
 def fetch_violations(start=None, end=None, region=None):
     params = {}
-    if isinstance(start, datetime):
+    if start:
         params["start_date"] = start.strftime("%Y-%m-%d")
-    if isinstance(end, datetime):
+    if end:
         params["end_date"] = end.strftime("%Y-%m-%d")
     if region and region != "All":
         params["region"] = region
@@ -46,9 +52,9 @@ def fetch_violations(start=None, end=None, region=None):
 @st.cache_data(ttl=300)
 def fetch_timeline(start=None, end=None, region=None, violation_type=None):
     params = {}
-    if isinstance(start, datetime):
+    if start:
         params["start_date"] = start.strftime("%Y-%m-%d")
-    if isinstance(end, datetime):
+    if end:
         params["end_date"] = end.strftime("%Y-%m-%d")
     if region and region != "All":
         params["region"] = region
@@ -59,36 +65,20 @@ def fetch_timeline(start=None, end=None, region=None, violation_type=None):
     r.raise_for_status()
     return r.json()
 
-@st.cache_data(ttl=300)
-def fetch_geodata(start=None, end=None, violation_type=None):
-    params = {}
-    if isinstance(start, datetime):
-        params["start_date"] = start.strftime("%Y-%m-%d")
-    if isinstance(end, datetime):
-        params["end_date"] = end.strftime("%Y-%m-%d")
-    if violation_type and violation_type != "All":
-        params["violation_type"] = violation_type
-
-    r = requests.get(f"{API_BASE}/analytics/geodata", params=params)
-    r.raise_for_status()
-    return r.json()
-
-# 1. جلب البيانات بدون فلترة (لاستعمالها في بناء خيارات الفلاتر)
+# جلب البيانات بدون فلترة للفلتر
 geodata = fetch_geodata(start_date, end_date)
 df_geo = pd.DataFrame(geodata)
 
 violations_data = fetch_violations(start_date, end_date)
 df_violations = pd.DataFrame(violations_data)
 
-# 2. بناء خيارات الفلاتر بناءً على البيانات الحقيقية
 regions = df_geo['region'].dropna().unique().tolist() if not df_geo.empty else []
 violation_types = df_violations['violation_type'].dropna().unique().tolist() if not df_violations.empty else []
 
-# 3. عرض خيارات الفلاتر في sidebar (مع تضمين "All")
 selected_region = st.sidebar.selectbox("Region", ["All"] + regions)
 selected_violation_type = st.sidebar.selectbox("Violation Type", ["All"] + violation_types)
 
-# 4. جلب البيانات المفلترة بناءً على اختيار المستخدم
+# جلب البيانات المفلترة بناءً على اختيار المستخدم
 violations_data = fetch_violations(start_date, end_date, selected_region)
 df_violations = pd.DataFrame(violations_data)
 
@@ -98,7 +88,8 @@ df_timeline = pd.DataFrame(timeline_data)
 geodata = fetch_geodata(start_date, end_date, selected_violation_type)
 df_geo = pd.DataFrame(geodata)
 
-# باقي عرض الرسوم البيانية وهكذا ...
+# --- Visualization ---
+# (تابع عرض الرسوم البيانية كما في كودك الأصلي)
 
 
 # --- Visualization ---
