@@ -250,10 +250,18 @@ with tab7:
         res = requests.get(f"{API_URL}/cases/{case_id}/status-history")
         if res.status_code == 200:
             history = res.json()
-            for record in history:
-                st.write(record)
+            if history:
+                for record in history:
+                    timestamp = record.get("timestamp", "N/A")
+                    status = record.get("status", "N/A")
+                    changed_by = record.get("changed_by", "Unknown")
+                    
+                    st.markdown(f"**🕒 Date:** {timestamp} | **📌 Status:** {status} | **👤 Changed by:** {changed_by}")
+            else:
+                st.info("No status history found.")
         else:
             st.error(res.json()["detail"])
+
 with tab8:
     st.subheader("📤 Upload Files")
     case_id = st.text_input("Case ID to upload to")
