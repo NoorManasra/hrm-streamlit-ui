@@ -15,9 +15,9 @@ st.title("Human Rights Violations Dashboard")
 # --- فلترة التاريخ ---
 col1, col2 = st.columns(2)
 with col1:
-    start_date = st.date_input("Start date (optional)", value=None)
+    start_date = datetime.combine(start_date, datetime.min.time())
 with col2:
-    end_date = st.date_input("End date (optional)", value=None)
+    start_date = datetime.combine(start_date, datetime.min.time())
 
 # --- تحميل بيانات الانتهاكات ---
 @st.cache_data(ttl=300)
